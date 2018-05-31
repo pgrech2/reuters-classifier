@@ -1,35 +1,35 @@
 (ns dev
-  "Tools for interactive development with the REPL. This file should
-  not be included in a production build of the application.
+  (:require [clojure.java.io :as jio]
+            [clojure.java.javadoc :refer [javadoc]]
+            [clojure.pprint :refer [pprint]]
+            [clojure.reflect :refer [reflect]]
+            [clojure.repl :refer [apropos dir doc find-doc pst source]]
+            [clojure.set :as set]
+            [clojure.string :as string]
+            [clojure.test :as test]
+            [clojure.tools.namespace.repl :refer [refresh refresh-all clear]]
+            [com.stuartsierra.component :as component]
+            [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
 
-  Call `(reset)` to reload modified code and (re)start the system.
+            [clojure-data.io :as io]
+            [clojure-data.load :as load]
+            [clojure-data.helpers :as help]
 
-  The system under development is `system`, referred from
-  `com.stuartsierra.component.repl/system`.
+            ;; [clojure-nlp.svm :as svm]
 
-  See also https://github.com/stuartsierra/component.repl"
-  (:require
-   [clojure.java.io :as io]
-   [clojure.java.javadoc :refer [javadoc]]
-   [clojure.pprint :refer [pprint]]
-   [clojure.reflect :refer [reflect]]
-   [clojure.repl :refer [apropos dir doc find-doc pst source]]
-   [clojure.set :as set]
-   [clojure.string :as string]
-   [clojure.test :as test]
-   [clojure.tools.namespace.repl :refer [refresh refresh-all clear]]
-   [com.stuartsierra.component :as component]
-   [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
-   [reuters-classifier]))
+            [reuters-classifier :as rc]))
 
-;; Do not try to load source code from 'resources' directory
 (clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test")
 
+(def data-file "data/r8-train-all-terms.txt")
+
 (defn dev-system
-  "Constructs a system map suitable for interactive development."
   []
   (component/system-map
-   ;; TODO
-   ))
+   :r8 (load/loader {:file data-file
+                     :parse (partial io/read-file #"\t")})))
 
 (set-init (fn [_] (dev-system)))
+
+(defn fetch [sys]
+  (load/records (:r8 system) identity))

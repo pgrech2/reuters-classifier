@@ -1,3 +1,2 @@
-(ns reuters-classifier)
-
-
+(ns reuters-classifier
+  )
